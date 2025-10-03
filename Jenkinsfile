@@ -4,25 +4,24 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                echo "Cloning repo..."
-                // Jenkins auto-clones your repo, so just logging here
+                echo "Cloned repo successfully"
             }
         }
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                sh 'echo "Building Docker image for landing-page-docker..."'
+                sh 'docker build -t landing-page-docker .'
             }
         }
-        stage('Test') {
+        stage('Run Container') {
             steps {
-                sh 'echo "Running tests (dummy step)..."'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                sh 'echo "Deploying container (to be added later)..."'
+                // Stop and remove old container if exists
+                sh '''
+                  if [ "$(docker ps -aq -f name=landing-page)" ]; then
+                    docker rm -f landing-page
+                  fi
+                  docker run -d -p 8081:80 --name landing-page landing-page-docker
+                '''
             }
         }
     }
 }
-
